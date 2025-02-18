@@ -1,0 +1,1 @@
+voglio che crei un file README.md (per il progetto quargen.py) che spieghi in todo list cosa è stato fatto, cosa il software fa e quello che ancora deve essere fatto.
