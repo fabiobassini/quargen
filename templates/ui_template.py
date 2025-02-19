@@ -1,5 +1,15 @@
 # templates/ui_template.py
-UI_TEMPLATE = '''from flask import Blueprint, render_template
+UI_TEMPLATE = '''"""
+Questo file definisce il modulo UI per il modulo {module_name}.
+Scopo: Gestire il rendering della parte front-end dell'applicazione.
+Utilizzo:
+    - Crea un blueprint Flask per la UI.
+    - Registra le rotte per la pagina index e eventuali endpoint extra.
+Esempio:
+    - Una richiesta GET a "/" renderizzerà il template "index/index.html".
+"""
+
+from flask import Blueprint, render_template
 import os, importlib
 from interfaces.core import IUIComponent
 from utils.logger import ColoredLogger

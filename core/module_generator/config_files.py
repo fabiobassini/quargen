@@ -5,14 +5,21 @@ import json
 from utils.file_utils import write_file
 from templates import config_template
 
-def generate_config_files(base_path: Path, module_name: str):
+from pathlib import Path
+import json
+from utils.file_utils import write_file
+from templates import config_template
+
+def generate_config_files(base_path: Path, module_name: str, socket_enabled: bool = False):
     m = module_name
+    # Imposta il valore per socket_enabled in base al flag
+    socket_value = "True" if socket_enabled else "False"
     env_content = f"# Variabili d'ambiente per il modulo {m}\nFLASK_ENV=development\nDEBUG=True\n"
     write_file(base_path / '.env', env_content)
     readme_content = f"# {m}\nModulo generato automaticamente per QuarTrend.\n"
     write_file(base_path / 'README.md', readme_content)
     write_file(base_path / 'requirements.txt', "Flask==2.1.2\n")
-    write_file(base_path / "config" / "default.py", config_template.CONFIG_TEMPLATE.format(module_name=m))
+    write_file(base_path / "config" / "default.py", config_template.CONFIG_TEMPLATE.format(module_name=m, socket_enabled=socket_value))
     install_content = (
         f"# Installazione di {m}\n\n"
         "1. Clona il repository.\n"
@@ -27,6 +34,7 @@ def generate_config_files(base_path: Path, module_name: str):
     )
     write_file(base_path / "docs" / "installation.md", install_content)
     write_file(base_path / "docs" / "usage.md", usage_content)
+
 
 def generate_manifest(base_path: Path, module_name: str, is_main: bool):
     manifest = {

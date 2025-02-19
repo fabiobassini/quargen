@@ -9,10 +9,19 @@ from .static_assets import generate_static_assets
 from .main_files import generate_main_and_build_files
 
 class ModuleGenerator:
-    def __init__(self, module_name: str, base_path: str, is_main: bool = False):
+    def __init__(self, module_name: str, base_path: str, is_main: bool = False, socket_enabled: bool = False):
+        """
+        Inizializza il generatore di moduli.
+        
+        :param module_name: Nome del modulo.
+        :param base_path: Directory base in cui generare il modulo.
+        :param is_main: Se True, il modulo verrà impostato come principale (endpoint '/' per la UI).
+        :param socket_enabled: Se True, il modulo includerà il supporto per i socket.
+        """
         self.module_name = module_name
         self.base_path = Path(base_path) / module_name
         self.is_main = is_main
+        self.socket_enabled = socket_enabled
 
     def initialize(self, config: dict):
         pass
@@ -25,9 +34,10 @@ class ModuleGenerator:
 
     def generate(self):
         create_directories(self.base_path)
-        generate_config_files(self.base_path, self.module_name)
+        # Passa socket_enabled anche alla generazione dei file di config
+        generate_config_files(self.base_path, self.module_name, socket_enabled=self.socket_enabled)
         generate_interfaces(self.base_path)
-        generate_components(self.base_path, self.module_name)
+        generate_components(self.base_path, self.module_name, socket_enabled=self.socket_enabled)
         generate_ui_templates(self.base_path, self.module_name, self.is_main)
         generate_static_assets(self.base_path, self.module_name)
         generate_main_and_build_files(self.base_path, self.module_name)

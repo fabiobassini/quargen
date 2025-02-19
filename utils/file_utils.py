@@ -15,3 +15,7 @@ def create_init(directory: Path):
     init_file = directory / '__init__.py'
     if not init_file.exists():
         write_file(init_file, "")
+
+def read_file(path: Path) -> str:
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()

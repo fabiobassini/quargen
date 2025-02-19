@@ -3,14 +3,21 @@ from pathlib import Path
 from utils.file_utils import create_dir, write_file
 
 class ClassAdder:
-    def add(self, type_: str, class_name: str, module_dir: str, url_prefix: str = None, subtype: str = None):
+    def add(self, type_: str, class_name: str, module_dir: str, url_prefix: str = None, subtype: str = None, prefix: str = None):
         module_path = Path(module_dir)
         if type_ == "controller":
             if not subtype:
                 subtype = "rest"  # Default per controller
             if subtype == "rest":
                 target_dir = module_path / "controllers" / "rest"
-                template = '''from interfaces.business import IController
+                template = '''"""
+Questo file definisce un controller REST per il modulo {module_name}.
+Scopo: Gestire richieste API specifiche e restituire risposte in formato JSON.
+Esempio:
+    Una richiesta GET a /api/{module_name}/{route} attiverà il metodo sample.
+"""
+
+from interfaces.business import IController
 from flask import Blueprint, request, jsonify
 from utils.logger import ColoredLogger
 
@@ -37,7 +44,14 @@ class {class_name}(IController):
                 filled = template.format(module_name=module_path.name, class_name=class_name, route=route)
             elif subtype == "web":
                 target_dir = module_path / "controllers" / "web"
-                template = '''from interfaces.business import IController
+                template = '''"""
+Questo file definisce un controller web per il modulo {module_name}.
+Scopo: Renderizzare template HTML per la UI.
+Esempio:
+    Il metodo action renderizzerà il template {template_file}.
+"""
+
+from interfaces.business import IController
 from flask import render_template
 from utils.logger import ColoredLogger
 
@@ -57,7 +71,14 @@ class {class_name}(IController):
                 subtype = "business"
             if subtype == "business":
                 target_dir = module_path / "services" / "business"
-                template = '''from interfaces.business import IService
+                template = '''"""
+Questo file definisce un service di business per il modulo {module_name}.
+Scopo: Implementare la logica di business dell'applicazione.
+Esempio:
+    Il metodo serve esegue la logica e restituisce un risultato.
+"""
+
+from interfaces.business import IService
 from utils.logger import ColoredLogger
 
 logger = ColoredLogger(__name__).get_logger()
@@ -70,7 +91,14 @@ class {class_name}(IService):
                 filled = template.format(module_name=module_path.name, class_name=class_name)
             elif subtype == "data":
                 target_dir = module_path / "services" / "data"
-                template = '''from interfaces.data import IDataAccess
+                template = '''"""
+Questo file definisce un service per l'accesso ai dati per il modulo {module_name}.
+Scopo: Recuperare i dati necessari dall'origine dati.
+Esempio:
+    Il metodo get_data restituisce i dati richiesti.
+"""
+
+from interfaces.data import IDataAccess
 
 class {class_name}(IDataAccess):
     def get_data(self):
@@ -86,7 +114,14 @@ class {class_name}(IDataAccess):
                 subtype = "domain"
             if subtype == "domain":
                 target_dir = module_path / "models" / "domain"
-                template = '''from interfaces.business import IModel
+                template = '''"""
+Questo file definisce un modello di dominio per il modulo {module_name}.
+Scopo: Rappresentare le entità e la logica di business sui dati.
+Esempio:
+    Il modello SampleModel gestisce i dati e li elabora.
+"""
+
+from interfaces.business import IModel
 
 class {class_name}(IModel):
     def __init__(self, data):
@@ -98,7 +133,14 @@ class {class_name}(IModel):
                 filled = template.format(module_name=module_path.name, class_name=class_name)
             elif subtype == "dto":
                 target_dir = module_path / "models" / "dto"
-                template = '''class {class_name}:
+                template = '''"""
+Questo file definisce un Data Transfer Object (DTO) per il modulo {module_name}.
+Scopo: Facilitare il trasferimento di dati tra i componenti dell'applicazione.
+Esempio:
+    Un DTO che converte gli attributi in dizionario.
+"""
+
+class {class_name}:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
     
@@ -113,13 +155,19 @@ class {class_name}(IModel):
         elif type_ == "template":
             target_dir = module_path / "ui" / "templates" / class_name.lower()
             create_dir(target_dir)
-            # Utilizziamo un template con tag Jinja2 "escape-ati" (doppie parentesi) per preservare i tag
-            template = r'''{{% extends "base/base.html" %}}
+            template = r'''{# 
+Questo file HTML è un template per la UI del modulo.
+Scopo: Fornire una base per il rendering di pagine web.
+Esempio:
+    Il template estende "base/base.html" e definisce un blocco "content".
+#}
 
-{{% block content %}}
+{% extends "base/base.html" %}
+
+{% block content %}
 <h2>{class_name} Template</h2>
 <p>Contenuto personalizzato per {class_name}.</p>
-{{% endblock %}}
+{% endblock %}
 '''
             filled = template.format(class_name=class_name)
             filename = target_dir / (class_name.lower() + ".html")
@@ -132,7 +180,13 @@ class {class_name}(IModel):
                 create_dir(endpoints_dir)
                 endpoint_filename = endpoints_dir / (class_name.lower() + "_endpoint.py")
                 view_name = class_name.lower() + "_view"
-                endpoint_template = '''from flask import render_template
+                endpoint_template = '''{#
+Questo file definisce un endpoint extra per il template {class_name}.
+Scopo: Aggiungere funzionalità extra alla UI.
+Esempio:
+    L'endpoint viene registrato con il prefisso '{url_prefix}'.
+#}
+from flask import render_template
 from utils.logger import ColoredLogger
 logger = ColoredLogger(__name__).get_logger()
 
@@ -150,8 +204,39 @@ def register_endpoint(parent_bp):
                     template_file=class_name.lower() + ".html"
                 )
                 write_file(endpoint_filename, endpoint_content)
+        elif type_ == "endpoint":
+            # Nuovo tipo: endpoint API extra
+            if not prefix:
+                print("[ERROR] Per il tipo 'endpoint' è necessario specificare --prefix.")
+                return
+            target_dir = module_path / "api" / "endpoints"
+            create_dir(target_dir)
+            # Usa un nuovo template per gli endpoint API
+            template = '''{#
+Questo file definisce un endpoint API aggiuntivo per il modulo {module_name}.
+Scopo: Fornire funzionalità extra alle API del modulo.
+Esempio:
+    Con il prefisso '{prefix}', l'endpoint sarà accessibile su /api/{module_name}/{prefix}.
+#}
+from flask import Blueprint, jsonify
+from utils.logger import ColoredLogger
+
+logger = ColoredLogger(__name__).get_logger()
+
+api_endpoint_bp = Blueprint('{module_name}_{prefix}_endpoint', __name__, url_prefix='/api/{module_name}/{prefix}')
+
+@api_endpoint_bp.route('/', methods=['GET'])
+def endpoint_home():
+    logger.info("Richiesta per l'endpoint {prefix}")
+    return jsonify({{"message": "Risposta dall'endpoint {prefix}"}})
+
+def get_endpoint():
+    return api_endpoint_bp
+'''
+            filled = template.format(module_name=module_path.name, prefix=prefix)
+            filename = target_dir / (class_name.lower() + "_endpoint.py")
         else:
-            print(f"[ERROR] Tipo '{type_}' non supportato. Usa: controller, service, model, template.")
+            print(f"[ERROR] Tipo '{type_}' non supportato. Usa: controller, service, model, template, endpoint.")
             return
         create_dir(target_dir)
         write_file(filename, filled)

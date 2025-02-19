@@ -1,5 +1,14 @@
 # templates/controller_template.py
-REST_CONTROLLER_TEMPLATE = '''from interfaces.business import IController
+REST_CONTROLLER_TEMPLATE = '''"""
+Questo file definisce un controller REST per il modulo {module_name}.
+Scopo: Gestire richieste API REST e restituire risposte in formato JSON.
+Utilizzo:
+    - Il controller crea un blueprint Flask con un endpoint (es. /api/{module_name}/sample).
+Esempio:
+    - Una richiesta GET a /api/{module_name}/sample attiverà il metodo sample e restituirà una risposta JSON.
+"""
+
+from interfaces.business import IController
 from flask import Blueprint, request, jsonify
 from utils.logger import ColoredLogger
 

@@ -1,6 +1,8 @@
 # QuarGen CLI
 
-QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend. Il suo scopo è automatizzare la generazione della struttura di moduli (repository) per il progetto, creando un'architettura modulare standardizzata e facilmente integrabile in sistemi più grandi.
+QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend.
+Il suo scopo è automatizzare la generazione della struttura di moduli (repository)
+per il progetto, creando un'architettura modulare standardizzata e facilmente integrabile in sistemi più grandi.
 
 ---
 
@@ -23,17 +25,19 @@ QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend. Il 
     - `tests/`: per test unitari e di integrazione.
     - `api/`: implementa il modulo API con blueprint Flask.
     - `ui/`: include:
-      - `templates/`: con cartelle `base/` (contenente `base.html`) ed `index/` (contenente `index.html`).
+      - `templates/`: con la nuova struttura:
+        - `html_templates/`: contiene la cartella `base/` (con `ui_base_template.html`) e il file `ui_index_template.html`.
       - `static/`: con sottocartelle `css/`, `js/`, `images/`.
       - `endpoints/`: cartella separata (fuori da `templates/`) per endpoint extra della UI.
     - `sockets/`: per la gestione delle connessioni socket.
     - `interfaces/`: definisce le interfacce base (core, data, config, business) che devono essere implementate da tutti i componenti.
     - `main.py`: punto di ingresso dell'applicazione che registra automaticamente API, UI, sockets e tutti i controller presenti.
     - `webpack.config.js` e `package.json`: per la build della parte front-end tramite webpack.
-    - File aggiuntivi: `.env`, `README.md`, `requirements.txt`.
+    - File aggiuntivi: `.env`, `README.md`, `requirements.txt`, e il file di manifest `module_manifest.json` che descrive il modulo.
 
 - **Comandi CLI**
-  - **generate:** Genera l’intera struttura di un nuovo modulo.
+  - **generate:** Genera l’intera struttura di un nuovo modulo.  
+    Aggiungendo il flag `--main` si indica che il modulo sarà quello principale (con endpoint `/`).
   - **dev:** Avvia l’applicazione in modalità sviluppo eseguendo `main.py` come modulo (con import relativi corretti).
   - **build:** Esegue la build per la produzione usando webpack, minimizzando i file JavaScript.
   - **add:** Permette di aggiungere nuove classi o template.  
@@ -41,6 +45,7 @@ QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend. Il 
     - Per i **service**, il sottotipo può essere `business` o `data`.
     - Per i **model**, il sottotipo può essere `domain` o `dto`.
     - Per i **template**, se viene fornita l’opzione `--url_prefix`, viene generato anche un endpoint extra nella cartella `ui/endpoints`.
+    - È possibile anche aggiungere nuovi **endpoint API** tramite il flag `--prefix`.
 
 - **Logger a Colori**
   - La classe `ColoredLogger` fornisce log colorati in base al livello (DEBUG, INFO, WARNING, ERROR, CRITICAL), facilitando il debugging.
@@ -49,6 +54,16 @@ QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend. Il 
   - Il file `main.py` generato:
     - Importa e inizializza i moduli API, UI e Sockets.
     - Registra automaticamente tutti i controller presenti nella cartella `controllers` (scansione ricorsiva), rendendo il modulo autonomo e facilmente integrabile.
+
+- **Organizzazione dei Template**
+  - I template HTML per la UI sono ora gestiti nella cartella `templates/html_templates/`:
+    - `base/ui_base_template.html`: template base.
+    - `ui_index_template.html`: template per la pagina index.
+  - Il template Python per il main si trova in `templates/py_templates/main_template.py`.
+
+- **Manifest del Modulo**
+  - Ogni modulo generato include un file `module_manifest.json` contenente le informazioni sul modulo,
+    utile per future operazioni di aggregazione tra repository.
 
 ---
 
@@ -59,14 +74,16 @@ QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend. Il 
      ```bash
      python quargen.py generate --name MyApp --base <percorso>
      ```
-   - Verrà creata una struttura modulare completa con tutte le directory e i file necessari, inclusi i file `__init__.py` per rendere ogni cartella un package Python.
+   - Verrà creata una struttura modulare completa con tutte le directory e i file necessari,
+     inclusi i file `__init__.py` per rendere ogni cartella un package Python e il file manifest.
 
 2. **Avvio in Modalità Sviluppo**
    - Avvia l’applicazione con:
      ```bash
      python quargen.py dev --module MyApp
      ```
-   - Il DevServer cambia il working directory al livello superiore di `MyApp` e lancia l’app come modulo (`python -m MyApp.main`), garantendo che gli import relativi siano risolti correttamente.
+   - Il DevServer cambia il working directory al livello superiore di `MyApp` e lancia l’app come modulo
+     (`python -m MyApp.main`), garantendo che gli import relativi siano risolti correttamente.
    - Il file `main.py` registra automaticamente API, UI, Sockets e tutti i controller presenti.
 
 3. **Build per la Produzione**
@@ -83,72 +100,18 @@ QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend. Il 
        python quargen.py add --type template --class_name CustomTemplate --module MyApp/ --url_prefix custom
        ```
      - **Controller, Service e Model:** È possibile specificare il sottotipo (es. `rest`, `business`, `domain`, ecc.) per posizionarli nelle cartelle appropriate.
+     - **Endpoint API Extra:** Usa il flag `--prefix` per definire il prefisso dell’endpoint.
 
 5. **Logger a Colori**
    - Durante l’esecuzione, la classe `ColoredLogger` produce log colorati in console, facilitando il monitoraggio e il debug.
 
 ---
 
-## Struttura del Progetto Generato
-
-Esempio di struttura di un modulo generato (MyApp):
-
-MyApp/
-├── .env
-├── README.md
-├── requirements.txt
-├── config/
-│   └── default.py
-├── docs/
-│   ├── installation.md
-│   └── usage.md
-├── models/
-│   ├── domain/
-│   │   └── sample_model.py
-│   └── dto/
-├── controllers/
-│   ├── rest/
-│   │   └── sample_controller.py
-│   └── web/
-├── services/
-│   ├── business/
-│   │   └── sample_service.py
-│   └── data/
-├── utils/
-│   └── logger.py
-├── tests/
-│   └── test_module.py
-├── api/
-│   └── api_module.py
-├── ui/
-│   ├── ui_module.py
-│   ├── templates/
-│   │   ├── base/
-│   │   │   └── base.html
-│   │   └── index/
-│   │       └── index.html
-│   ├── endpoints/   <-- Endpoint extra per la UI
-│   └── static/
-│       ├── css/
-│       │   └── style.css
-│       ├── js/
-│       │   └── script.js
-│       └── images/
-├── sockets/
-│   └── socket_module.py
-├── interfaces/
-│   ├── core.py
-│   ├── data.py
-│   ├── config.py
-│   └── business.py
-└── main.py
-
----
-
 ## Cosa Fa il Software
 
 - **Automatizza la generazione della struttura modulare:**  
-  Permette di creare in modo standardizzato un modulo completo per QuarTrend, includendo tutti i componenti necessari per API, UI, sockets e logica di business.
+  Permette di creare in modo standardizzato un modulo completo per QuarTrend,
+  includendo tutti i componenti necessari per API, UI, sockets e logica di business.
 
 - **Gestione semplificata dell’avvio e della build:**  
   Fornisce comandi per avviare l’app in modalità sviluppo e per eseguire la build per la produzione tramite webpack.
@@ -158,6 +121,12 @@ MyApp/
 
 - **Output di log a colori:**  
   Grazie alla classe `ColoredLogger`, i log vengono visualizzati in modo chiaro e colorato, facilitando il debug.
+
+- **Gestione centralizzata dei template:**  
+  I template per la UI e il main sono gestiti in cartelle specifiche (html_templates e py_templates) per una manutenzione più semplice.
+
+- **Manifest del modulo:**  
+  Ogni modulo genera un file `module_manifest.json` con le informazioni sul modulo, utile per future operazioni di aggregazione.
 
 ---
 
@@ -190,8 +159,10 @@ Questo README viene aggiornato ad ogni modifica significativa del progetto.
 
 ## Come Contribuire
 
-Se desideri contribuire a QuarGen, fai un fork del repository, apporta le modifiche e apri una pull request. Consulta il file `CONTRIBUTING.md` (se disponibile) per le linee guida sul contributo.
+Se desideri contribuire a QuarGen, fai un fork del repository, apporta le modifiche e apri una pull request.
+Consulta il file `CONTRIBUTING.md` (se disponibile) per le linee guida sul contributo.
 
 ---
 
-Con QuarGen potrai generare rapidamente una struttura modulare standardizzata e scalabile, facilitando lo sviluppo e l'integrazione di applicazioni per il progetto QuarTrend.
+Con QuarGen potrai generare rapidamente una struttura modulare standardizzata e scalabile,
+facilitando lo sviluppo e l'integrazione di applicazioni per il progetto QuarTrend.

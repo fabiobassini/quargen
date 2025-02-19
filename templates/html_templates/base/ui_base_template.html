@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ module_name }} - Template Base</title>
+    <link rel="stylesheet" href="{{ url_for('{{ module_name }}_ui.static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>{{ module_name }}</h1>
+    </header>
+    <main>
+        {% block content %}
+        <!-- Contenuto specifico del modulo -->
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 {{ module_name }}. Tutti i diritti riservati.</p>
+    </footer>
+</body>
+
+</html>

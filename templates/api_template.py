@@ -1,5 +1,18 @@
 # templates/api_template.py
-API_TEMPLATE = '''from flask import Blueprint, jsonify
+API_TEMPLATE = '''"""
+Questo file definisce il modulo API per il modulo {module_name}.
+Scopo:
+    - Esportare un insieme di endpoint REST per il modulo, che possono essere consumati da client esterni.
+Utilizzo:
+    - Crea un blueprint Flask con URL prefix '/api/{module_name}'.
+    - Il metodo register_routes definisce un endpoint /status che restituisce lo stato dell'API.
+Esempio:
+    - Una richiesta GET a /api/{module_name}/status restituirà {"status": "API attiva"}.
+    
+Assicurati che il modulo implementi l'interfaccia IAPIModule per garantire coerenza e interoperabilità.
+"""
+
+from flask import Blueprint, jsonify
 from interfaces.core import IAPIModule
 from utils.logger import ColoredLogger
 
@@ -32,3 +45,4 @@ def initialize_api(config: dict):
     logger.info("Inizializzo l'API con config: " + str(config))
     return APIModule()
 '''
+
