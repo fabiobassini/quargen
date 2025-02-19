@@ -1,6 +1,9 @@
+# quargen.py
 #!/usr/bin/env python3
 import argparse
-from core.module_generator import ModuleGenerator
+# from core.module_generator import ModuleGenerator
+from core.module_generator.generator import ModuleGenerator
+
 from core.dev_server import DevServer
 from core.build_tool import BuildTool
 from core.class_adder import ClassAdder
