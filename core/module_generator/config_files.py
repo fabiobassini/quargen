@@ -1,4 +1,7 @@
+# core/module_generator/config_files.py
+
 from pathlib import Path
+import json
 from utils.file_utils import write_file
 from templates import config_template
 
@@ -24,3 +27,20 @@ def generate_config_files(base_path: Path, module_name: str):
     )
     write_file(base_path / "docs" / "installation.md", install_content)
     write_file(base_path / "docs" / "usage.md", usage_content)
+
+def generate_manifest(base_path: Path, module_name: str, is_main: bool):
+    manifest = {
+        "name": module_name,
+        "is_main": is_main,
+        "components": {
+            "api": str((base_path / "api").resolve()),
+            "ui": str((base_path / "ui").resolve()),
+            "sockets": str((base_path / "sockets").resolve()),
+            "controllers": str((base_path / "controllers").resolve()),
+            "services": str((base_path / "services").resolve()),
+            "models": str((base_path / "models").resolve())
+        }
+    }
+    manifest_path = base_path / "module_manifest.json"
+    with manifest_path.open("w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=4)

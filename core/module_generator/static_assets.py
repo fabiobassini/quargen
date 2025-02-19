@@ -1,3 +1,4 @@
+# core/module_generator/static_assets.py
 from pathlib import Path
 from utils.file_utils import create_dir, write_file
 

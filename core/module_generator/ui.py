@@ -1,7 +1,8 @@
+# core/module_generator/ui.py
 from pathlib import Path
 from utils.file_utils import create_dir, write_file
 
-def generate_ui_templates(base_path: Path, module_name: str):
+def generate_ui_templates(base_path: Path, module_name: str, is_main: bool = False):
     m = module_name
     ui_dir = base_path / 'ui'
     templates_dir = ui_dir / 'templates'
@@ -45,3 +46,7 @@ def generate_ui_templates(base_path: Path, module_name: str):
     # Creazione della cartella per gli endpoints extra (se necessari)
     endpoints_dir = ui_dir / 'endpoints'
     create_dir(endpoints_dir)
+    
+    # Nota: la configurazione del blueprint (url_prefix e route) verrà gestita nel template Python
+    # che si trova in templates/ui_template.py. Potresti voler aggiornare anche quel template per gestire
+    # dinamicamente il url_prefix in base a is_main.

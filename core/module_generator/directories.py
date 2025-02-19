@@ -1,3 +1,5 @@
+# core/module_generator/dictionaries.py
+
 from pathlib import Path
 from utils.file_utils import create_dir, create_init
 

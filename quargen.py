@@ -11,7 +11,7 @@ from core.class_adder import ClassAdder
 class QuarTrendCLI:
     @staticmethod
     def generate_module(args):
-        gen = ModuleGenerator(args.name, args.base)
+        gen = ModuleGenerator(args.name, args.base, is_main=args.main)
         gen.generate()
 
     @staticmethod
@@ -41,6 +41,8 @@ def main():
     gen_parser = subparsers.add_parser("generate", help="Genera un nuovo modulo")
     gen_parser.add_argument("--name", type=str, required=True, help="Nome del modulo da creare")
     gen_parser.add_argument("--base", type=str, default=".", help="Directory base per il modulo")
+    # Flag per indicare che il modulo è principale
+    gen_parser.add_argument("--main", action="store_true", help="Indica che il modulo è il principale (usa endpoint '/')")
     gen_parser.set_defaults(func=QuarTrendCLI.generate_module)
 
     # Comando dev

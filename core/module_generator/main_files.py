@@ -1,3 +1,5 @@
+# core/module_generator/main_files.py
+
 from pathlib import Path
 from utils.file_utils import write_file
 
