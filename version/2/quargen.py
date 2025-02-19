@@ -104,7 +104,8 @@ def initialize_api(config: dict):
     return APIModule()
 '''
 
-# UI: blueprint con url_prefix='/' e con template_folder e static_folder impostati; registra anche endpoint extra
+# UI: blueprint creato con url_prefix='/' e con template_folder e static_folder impostati.
+# In register_extra_endpoints, la stringa di log usa {{filename}} per non fare sostituzioni indesiderate.
 UI_TEMPLATE = '''from flask import Blueprint, render_template
 import os, importlib
 from utils.logger import ColoredLogger
@@ -132,8 +133,8 @@ class UIModule:
                     mod = importlib.import_module('ui.endpoints.' + mod_name)
                     if hasattr(mod, 'register_endpoint'):
                         mod.register_endpoint(self.blueprint)
-                        logger.info("Registrato endpoint da " + filename)
-
+                        logger.info("Registrato endpoint da {{filename}}")
+                        
     def get_blueprint(self):
         return self.blueprint
 
@@ -197,7 +198,7 @@ class ColoredLogger:
         'DEBUG': '\\033[94m',     # Blu
         'INFO': '\\033[92m',      # Verde
         'WARNING': '\\033[93m',   # Giallo
-        'ERROR': '\\033[91m',     # Rosso,
+        'ERROR': '\\033[91m',     # Rosso
         'CRITICAL': '\\033[95m'   # Magenta
     }
     RESET = '\\033[0m'
@@ -245,36 +246,37 @@ if __name__ == '__main__':
     unittest.main()
 '''
 
-# Nei template base ed index usiamo segnaposti per evitare conflitti con .format()
-BASE_HTML_TEMPLATE = r'''<!DOCTYPE html>
+# Template per il template HTML base
+BASE_HTML_TEMPLATE = '''<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title><<module_name>> - Template Base</title>
-    <link rel="stylesheet" href="{{ url_for('<<module_name>>_ui.static', filename='css/style.css') }}">
+    <title>{module_name} - Template Base</title>
+    <link rel="stylesheet" href="{{{{ url_for('static', filename='css/style.css') }}}}">
 </head>
 <body>
     <header>
-        <h1><<module_name>></h1>
+        <h1>{module_name}</h1>
     </header>
     <main>
-        {% block content %}
+        {{% block content %}}
         <!-- Contenuto specifico del modulo -->
-        {% endblock %}
+        {{% endblock %}}
     </main>
     <footer>
-        <p>&copy; 2025 <<module_name>>. Tutti i diritti riservati.</p>
+        <p>&copy; 2025 {module_name}. Tutti i diritti riservati.</p>
     </footer>
 </body>
 </html>
 '''
 
-INDEX_HTML_TEMPLATE = r'''{% extends "base/base.html" %}
+# Template per l'entry point index
+INDEX_HTML_TEMPLATE = '''{{% extends "base/base.html" %}}
 
-{% block content %}
-<h2>Benvenuto nel modulo <<module_name>></h2>
+{{% block content %}}
+<h2>Benvenuto nel modulo {module_name}</h2>
 <p>Questa è la pagina index di default.</p>
-{% endblock %}
+{{% endblock %}}
 '''
 
 STYLE_CSS_TEMPLATE = '''/* Stili di base per il modulo {module_name} */
@@ -290,16 +292,16 @@ document.addEventListener('DOMContentLoaded', function() {{
 '''
 
 # Template per il template UI (usato dal comando add template)
-TEMPLATE_UI_TEMPLATE = r'''{% extends "base/base.html" %}
+TEMPLATE_UI_TEMPLATE = '''{{% extends "base/base.html" %}}
 
-{% block content %}
+{{% block content %}}
 <h2>{class_name} Template</h2>
 <p>Contenuto personalizzato per {class_name}.</p>
-{% endblock %}
+{{% endblock %}}
 '''
 
-# Template per l'endpoint generato
-ENDPOINT_TEMPLATE = r'''from flask import render_template
+# Template per l'endpoint generato (estensione di UIModule)
+ENDPOINT_TEMPLATE = '''from flask import render_template
 from utils.logger import ColoredLogger
 logger = ColoredLogger(__name__).get_logger()
 
@@ -310,7 +312,7 @@ def register_endpoint(parent_bp):
         return render_template('{template_folder}/{template_file}')
 '''
 
-# Template per main.py: importante impostare static_folder=None per evitare conflitti
+# Template per main.py
 MAIN_TEMPLATE = '''from flask import Flask
 from config.default import CONFIG
 from api.api_module import initialize_api
@@ -318,7 +320,7 @@ from ui.ui_module import initialize_ui
 from sockets.socket_module import initialize_socket
 
 def create_app():
-    app = Flask(__name__, static_folder=None)
+    app = Flask(__name__)
     api_mod = initialize_api(CONFIG)
     ui_mod = initialize_ui(CONFIG)
     socket_mod = initialize_socket(CONFIG)
@@ -331,7 +333,7 @@ if __name__ == '__main__':
     app.run(debug=True, port=CONFIG["api_port"])
 '''
 
-# Template per webpack.config.js
+# Template per webpack.config.js (usa parentesi singole)
 WEBPACK_CONFIG_TEMPLATE = '''const path = require('path');
 
 module.exports = {
@@ -432,16 +434,12 @@ class ModuleGenerator:
         # cartella base e relativo file base.html
         base_templates_dir = templates_dir / 'base'
         create_dir(base_templates_dir)
-        base_html = BASE_HTML_TEMPLATE.replace("<<module_name>>", m).replace("<<module_name>>", m)
-        # Sostituiamo anche il placeholder per il nome del blueprint statico:
-        base_html = base_html.replace("{module_name}_ui", f"{m}_ui")
-        write_file(base_templates_dir / 'base.html', base_html)
+        write_file(base_templates_dir / 'base.html', BASE_HTML_TEMPLATE.format(module_name=m))
         # cartella index ed entry point index.html
         index_templates_dir = templates_dir / 'index'
         create_dir(index_templates_dir)
-        index_html = INDEX_HTML_TEMPLATE.replace("<<module_name>>", m)
-        write_file(index_templates_dir / 'index.html', index_html)
-        # cartella endpoints per eventuali endpoint extra
+        write_file(index_templates_dir / 'index.html', INDEX_HTML_TEMPLATE.format(module_name=m))
+        # Creazione della cartella endpoints per gli endpoint extra
         endpoints_dir = ui_dir / 'endpoints'
         create_dir(endpoints_dir)
         static_dir = ui_dir / 'static'
@@ -538,11 +536,13 @@ class ClassAdder:
             write_file(static_css, f"/* Stili per {class_name} */\n")
             write_file(static_js, f"// Script per {class_name}\n")
             filled = template_content
+            # Se url_prefix è specificato, genera un endpoint che estende UIModule
             if url_prefix:
                 endpoints_dir = module_path / "ui" / "endpoints"
                 create_dir(endpoints_dir)
                 endpoint_filename = endpoints_dir / (class_name.lower() + "_endpoint.py")
                 view_name = class_name.lower() + "_view"
+                # Il template assume che il template si trovi in ui/templates/<nome_template>/<nome_template>.html
                 endpoint_content = ENDPOINT_TEMPLATE.format(
                     url_prefix=url_prefix,
                     view_name=view_name,

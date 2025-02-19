@@ -1,9 +1,0 @@
-{
-  "name": "MyModule",
-  "version": "1.0.0",
-  "private": true,
-  "devDependencies": {
-    "webpack": "^5.0.0",
-    "webpack-cli": "^4.0.0"
-  }
-}
