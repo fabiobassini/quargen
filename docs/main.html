@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Detailed Documentation of the Quargen Framework</title>
+    <style>
+        /* Dark Theme CSS Styles for the Documentation */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1e1e1e;
+            color: #c5c6c7;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #0b0c10;
+            color: #66fcf1;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #45a29e;
+        }
+
+        nav {
+            background-color: #45a29e;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        nav a {
+            margin: 0 15px;
+            color: #1e1e1e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            background-color: #2e2e2e;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            border-bottom: 2px solid #45a29e;
+            padding-bottom: 5px;
+            color: #66fcf1;
+        }
+
+        h3 {
+            color: #66fcf1;
+        }
+
+        pre {
+            background: #0b0c10;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            color: #c5c6c7;
+        }
+
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            color: #66fcf1;
+        }
+
+        ul,
+        ol {
+            margin-left: 20px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #757575;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Detailed Documentation of the Quargen Framework</h1>
+        <p>Complete guide to the generated components and their functionality.</p>
+    </header>
+
+    <nav>
+        <a href="#overview">Overview</a>
+        <a href="#directory">Directory Structure</a>
+        <a href="#componenti">Components</a>
+        <a href="#api-ui">API &amp; UI Management</a>
+        <a href="#esempi">Command Examples</a>
+        <a href="#istruzioni">Usage Instructions</a>
+    </nav>
+
+    <section id="overview">
+        <h2>Overview</h2>
+        <p>
+            Quargen is a CLI framework designed to automate the generation of a standardized modular architecture for
+            Python Flask applications. The framework divides the project into distinct, well-organized components—each
+            with a specific role—allowing development in separate repositories and the automated integration of modules.
+        </p>
+    </section>
+
+    <section id="directory">
+        <h2>Generated Directory Structure</h2>
+        <p>
+            When a module is generated, Quargen creates the following structure:
+        </p>
+        <ul>
+            <li><strong>config/</strong> – Contains the <code>default.py</code> file with configurations (API port, UI
+                theme, socket enablement).</li>
+            <li><strong>docs/</strong> – Includes documentation files (installation.md, usage.md).</li>
+            <li><strong>models/</strong>
+                <ul>
+                    <li><em>domain/</em> – Domain models and business logic.</li>
+                    <li><em>dto/</em> – Data Transfer Objects for data exchange.</li>
+                </ul>
+            </li>
+            <li><strong>controllers/</strong>
+                <ul>
+                    <li><em>rest/</em> – Controllers for REST APIs that return JSON responses.</li>
+                    <li><em>web/</em> – Controllers for rendering HTML templates.</li>
+                </ul>
+            </li>
+            <li><strong>services/</strong>
+                <ul>
+                    <li><em>business/</em> – Business logic and complex operations.</li>
+                    <li><em>data/</em> – Data access and database interactions.</li>
+                </ul>
+            </li>
+            <li><strong>utils/</strong> – Utility functions, such as the <code>ColoredLogger</code>.</li>
+            <li><strong>tests/</strong> – Unit and integration tests.</li>
+            <li><strong>api/</strong> – API module that exposes REST endpoints via Flask blueprints. Recursive scanning
+                also registers extra endpoints (including those in <code>api/endpoints/</code>).</li>
+            <li><strong>ui/</strong>
+                <ul>
+                    <li><em>templates/</em> – HTML templates organized in subfolders (e.g., <code>base/</code> and
+                        <code>index/</code>).
+                    </li>
+                    <li><em>static/</em> – Static files: CSS, JavaScript, images.</li>
+                    <li><em>endpoints/</em> – Extra UI endpoints, if created with the <code>add</code> command.</li>
+                </ul>
+            </li>
+            <li><strong>sockets/</strong> – Management of real-time connections.</li>
+            <li><strong>interfaces/</strong> – Definition of standard interfaces for components.</li>
+            <li><strong>main.py</strong> – Application entry point, which automatically registers controllers, API, UI,
+                sockets, and extra endpoints.</li>
+            <li><strong>webpack.config.js</strong> and <strong>package.json</strong> – Front-end build configuration.
+            </li>
+            <li><strong>.env</strong>, <strong>README.md</strong>, <strong>requirements.txt</strong> and
+                <strong>module_manifest.json</strong> – Configuration and module manifest files.
+            </li>
+        </ul>
+    </section>
+
+    <section id="componenti">
+        <h2>Generated Components and Their Purpose</h2>
+        <h3>Config</h3>
+        <p>
+            The <code>config/</code> folder contains the <code>default.py</code> file with base settings (API port, UI
+            theme, socket enablement). These settings are loaded at application startup via <code>main.py</code>.
+        </p>
+
+        <h3>Docs</h3>
+        <p>
+            The <code>docs/</code> folder includes documentation files like <code>installation.md</code> and
+            <code>usage.md</code>, which provide instructions for installing and using the module.
+        </p>
+
+        <h3>Models</h3>
+        <p>
+            Models are divided into:
+        </p>
+        <ul>
+            <li><strong>domain/</strong>: Models that represent the domain and business logic.</li>
+            <li><strong>dto/</strong>: Data Transfer Objects for transferring data between components.</li>
+        </ul>
+
+        <h3>Controllers</h3>
+        <p>
+            Controllers are split into two categories:
+        </p>
+        <ul>
+            <li><strong>REST:</strong> Located in <code>controllers/rest</code>, they handle API requests and return
+                JSON responses. Each REST controller creates a blueprint with a unique name (based on the module and
+                class name).</li>
+            <li><strong>Web:</strong> Located in <code>controllers/web</code>, they handle rendering HTML templates
+                using functions like <code>render_template</code>.</li>
+        </ul>
+
+        <h3>Services</h3>
+        <p>
+            Services are divided into:
+        </p>
+        <ul>
+            <li><strong>Business:</strong> Implement complex business logic and operations.</li>
+            <li><strong>Data:</strong> Manage data access and interact with databases or other data sources.</li>
+        </ul>
+
+        <h3>Utils</h3>
+        <p>
+            The <code>utils/</code> folder contains utility functions, including the <code>ColoredLogger</code> which
+            enhances logging readability with colored messages.
+        </p>
+
+        <h3>API Module</h3>
+        <p>
+            The <code>api/</code> folder houses the API module, which exposes REST endpoints via Flask blueprints.
+            Recursive scanning also registers extra endpoints (even those in <code>api/endpoints</code>).
+        </p>
+
+        <h3>UI Module</h3>
+        <p>
+            The <code>ui/</code> folder manages the front-end:
+        </p>
+        <ul>
+            <li><strong>templates/</strong>: Contains HTML templates organized into subfolders such as
+                <code>base/</code> (common layout) and <code>index/</code> (main page).
+            </li>
+            <li><strong>static/</strong>: Includes CSS, JavaScript, and image files.</li>
+            <li><strong>endpoints/</strong>: Contains extra endpoints for the UI, created with the <code>add</code>
+                command.</li>
+        </ul>
+        <p>
+            The <strong>UI Module</strong> (in <code>ui_module.py</code>) registers a blueprint for the UI and manages
+            basic routing, while the <strong>templates</strong> define the visual presentation of the pages.
+        </p>
+
+        <h3>Sockets</h3>
+        <p>
+            The <code>sockets/</code> folder contains the module dedicated to real-time connection management. If
+            enabled (via the <code>--socket</code> flag), the module includes logic for notifications and chat;
+            otherwise, a placeholder is created.
+        </p>
+
+        <h3>Interfaces</h3>
+        <p>
+            The <code>interfaces/</code> folder defines contracts (e.g., <code>core.py</code>, <code>business.py</code>,
+            <code>data.py</code>) that every component must adhere to, ensuring consistency and facilitating automatic
+            module integration.
+        </p>
+
+        <h3>Main Entrypoint</h3>
+        <p>
+            The <code>main.py</code> file is the application's entry point. It imports and initializes the API, UI, and,
+            if enabled, sockets. It also automatically registers the blueprints of controllers by scanning the
+            <code>controllers/</code> folder.
+        </p>
+
+        <h3>Build Front-end</h3>
+        <p>
+            <code>webpack.config.js</code> and <code>package.json</code> are used to build and minimize the JavaScript
+            files for production.
+        </p>
+    </section>
+
+    <section id="api-ui">
+        <h2>API and UI Management</h2>
+        <h3>REST Controllers vs. Web Controllers</h3>
+        <p>
+            <strong>REST:</strong> Located in <code>controllers/rest</code>, these controllers handle APIs and return
+            JSON responses.
+        </p>
+        <p>
+            <strong>Web:</strong> Located in <code>controllers/web</code>, these controllers manage HTML template
+            rendering via <code>render_template</code>.
+        </p>
+
+        <h3>UI Module vs. Template</h3>
+        <p>
+            <strong>UI Module:</strong> Defined in <code>ui_module.py</code>, it manages routing and blueprint
+            registration for the UI.
+        </p>
+        <p>
+            <strong>Template:</strong> Defines the visual presentation of pages and is located in
+            <code>ui/templates</code>.
+        </p>
+    </section>
+
+    <section id="esempi">
+        <h2>Command Examples</h2>
+        <h3>Generate a Module</h3>
+        <pre><code>python quargen.py generate --name MyApp --base .
+# Generates the complete structure of the MyApp module.
+# Optionally, add --main for the main module and --socket to enable sockets.
+        </code></pre>
+
+        <h3>Start in Development Mode</h3>
+        <pre><code>python quargen.py dev --module MyApp
+# Starts the Flask server in development mode, automatically registering controllers, API, UI, and sockets.
+        </code></pre>
+
+        <h3>Build for Production</h3>
+        <pre><code>python quargen.py build --module MyApp
+# Runs npm install and npx webpack to minimize JS files and prepare the module for production.
+        </code></pre>
+
+        <h3>Adding Components</h3>
+        <h4>Controller</h4>
+        <pre><code># REST Controller (default)
+python quargen.py add --type controller --class_name NewRestController --module MyApp --subtype rest
+
+# Web Controller
+python quargen.py add --type controller --class_name NewWebController --module MyApp --subtype web
+        </code></pre>
+
+        <h4>Service</h4>
+        <pre><code># Business Service
+python quargen.py add --type service --class_name NewBusinessService --module MyApp --subtype business
+
+# Data Service
+python quargen.py add --type service --class_name NewDataService --module MyApp --subtype data
+        </code></pre>
+
+        <h4>Model</h4>
+        <pre><code># Domain Model
+python quargen.py add --type model --class_name NewDomainModel --module MyApp --subtype domain
+
+# DTO Model
+python quargen.py add --type model --class_name NewDTOModel --module MyApp --subtype dto
+        </code></pre>
+
+        <h4>Template</h4>
+        <pre><code>
+# Base Template (without extra endpoint)
+python quargen.py add --type template --class_name CustomTemplate --module MyApp
+
+# Template with extra endpoint (using --url_prefix)
+python quargen.py add --type template --class_name CustomTemplate --module MyApp --url_prefix custom
+        </code></pre>
+
+        <h4>Extra API Endpoint</h4>
+        <pre><code>
+python quargen.py add --type endpoint --class_name Extra_API --module MyApp --prefix extra
+        </code></pre>
+
+        <h4>Database Class</h4>
+        <pre><code>
+python quargen.py add --type db --class_name CustomDB --module MyApp
+        </code></pre>
+    </section>
+
+    <section id="istruzioni">
+        <h2>Usage Instructions</h2>
+        <ol>
+            <li>
+                <strong>Generate the Module:</strong> Run <code>generate</code> to create the base structure of the
+                module, including configurations, models, controllers, services, UI, API, sockets, and interfaces.
+            </li>
+            <li>
+                <strong>Development:</strong> Start the module in development mode with <code>dev</code> to test its
+                functionality.
+            </li>
+            <li>
+                <strong>Build:</strong> Once completed, run <code>build</code> to prepare the module for production by
+                minimizing JS files via webpack.
+            </li>
+            <li>
+                <strong>Add Components:</strong> Use the <code>add</code> command to extend the module with new
+                controllers, services, models, templates, extra endpoints, or database classes.
+            </li>
+            <li>
+                <strong>Integration:</strong> Each module includes a <code>module_manifest.json</code> file that
+                documents the components and facilitates aggregation into a larger application.
+            </li>
+        </ol>
+        <p>
+            With Quargen, you can focus on business logic while the framework handles the generation and management of
+            your application's architecture.
+        </p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Quargen Framework. All rights reserved.</p>

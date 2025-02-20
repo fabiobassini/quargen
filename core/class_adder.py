@@ -1,10 +1,14 @@
-# core/class_adder.py
 from pathlib import Path
 from utils.file_utils import create_dir, write_file
 
 class ClassAdder:
     def add(self, type_: str, class_name: str, module_dir: str, url_prefix: str = None, subtype: str = None, prefix: str = None):
         module_path = Path(module_dir)
+        # Inizializza le variabili in modo da poterle verificare dopo
+        target_dir = None
+        filename = None
+        filled = None
+
         if type_ == "controller":
             if not subtype:
                 subtype = "rest"  # Default per controller
@@ -25,7 +29,8 @@ logger = ColoredLogger(__name__).get_logger()
 
 class {class_name}(IController):
     def __init__(self):
-        self.blueprint = Blueprint('{module_name}_rest', __name__, url_prefix='/api/{module_name}')
+        # Il blueprint viene creato con un nome unico usando il nome della classe in minuscolo
+        self.blueprint = Blueprint('{module_name}_{class_name_lower}', __name__, url_prefix='/api/{module_name}')
         self.register_routes()
 
     def register_routes(self):
@@ -41,7 +46,8 @@ class {class_name}(IController):
         return "Azione eseguita da {class_name}"
 '''
                 route = class_name.lower()
-                filled = template.format(module_name=module_path.name, class_name=class_name, route=route)
+                filled = template.format(module_name=module_path.name, class_name=class_name, class_name_lower=class_name.lower(), route=route)
+                filename = target_dir / (class_name.lower() + ".py")
             elif subtype == "web":
                 target_dir = module_path / "controllers" / "web"
                 template = '''"""
@@ -62,10 +68,7 @@ class {class_name}(IController):
         return render_template('{template_file}')
 '''
                 filled = template.format(module_name=module_path.name, class_name=class_name, template_file=class_name.lower()+".html")
-            else:
-                print(f"[ERROR] Sottotipo di controller '{subtype}' non supportato. Usa: rest, web.")
-                return
-            filename = target_dir / (class_name.lower() + ".py")
+                filename = target_dir / (class_name.lower() + ".py")
         elif type_ == "service":
             if not subtype:
                 subtype = "business"
@@ -89,6 +92,7 @@ class {class_name}(IService):
         return "Risultato da {class_name}"
 '''
                 filled = template.format(module_name=module_path.name, class_name=class_name)
+                filename = target_dir / (class_name.lower() + ".py")
             elif subtype == "data":
                 target_dir = module_path / "services" / "data"
                 template = '''"""
@@ -105,10 +109,10 @@ class {class_name}(IDataAccess):
         return "Dati ottenuti da {class_name}"
 '''
                 filled = template.format(module_name=module_path.name, class_name=class_name)
+                filename = target_dir / (class_name.lower() + ".py")
             else:
                 print(f"[ERROR] Sottotipo di service '{subtype}' non supportato. Usa: business, data.")
                 return
-            filename = target_dir / (class_name.lower() + ".py")
         elif type_ == "model":
             if not subtype:
                 subtype = "domain"
@@ -131,6 +135,7 @@ class {class_name}(IModel):
         return f"Elaborazione dati da {class_name}: {{self.data}}"
 '''
                 filled = template.format(module_name=module_path.name, class_name=class_name)
+                filename = target_dir / (class_name.lower() + ".py")
             elif subtype == "dto":
                 target_dir = module_path / "models" / "dto"
                 template = '''"""
@@ -148,44 +153,47 @@ class {class_name}:
         return self.__dict__
 '''
                 filled = template.format(module_name=module_path.name, class_name=class_name)
+                filename = target_dir / (class_name.lower() + ".py")
             else:
                 print(f"[ERROR] Sottotipo di model '{subtype}' non supportato. Usa: domain, dto.")
                 return
-            filename = target_dir / (class_name.lower() + ".py")
         elif type_ == "template":
             target_dir = module_path / "ui" / "templates" / class_name.lower()
             create_dir(target_dir)
-            template = r'''{# 
+            template = r'''{{#
 Questo file HTML è un template per la UI del modulo.
 Scopo: Fornire una base per il rendering di pagine web.
 Esempio:
     Il template estende "base/base.html" e definisce un blocco "content".
-#}
+#}}
 
-{% extends "base/base.html" %}
+{{% extends "base/base.html" %}}
 
-{% block content %}
+{{% block content %}}
 <h2>{class_name} Template</h2>
 <p>Contenuto personalizzato per {class_name}.</p>
-{% endblock %}
+{{% endblock %}}
 '''
             filled = template.format(class_name=class_name)
             filename = target_dir / (class_name.lower() + ".html")
+            # Genera anche file statici per questo template
             static_css = module_path / "ui" / "static" / "css" / (class_name.lower() + ".css")
             static_js = module_path / "ui" / "static" / "js" / (class_name.lower() + ".js")
             write_file(static_css, f"/* Stili per {class_name} */\n")
             write_file(static_js, f"// Script per {class_name}\n")
+            # Se è stato passato url_prefix, genera anche l'endpoint extra per il template
             if url_prefix:
                 endpoints_dir = module_path / "ui" / "endpoints"
                 create_dir(endpoints_dir)
                 endpoint_filename = endpoints_dir / (class_name.lower() + "_endpoint.py")
                 view_name = class_name.lower() + "_view"
-                endpoint_template = '''{#
+                endpoint_template = r'''"""
 Questo file definisce un endpoint extra per il template {class_name}.
 Scopo: Aggiungere funzionalità extra alla UI.
 Esempio:
     L'endpoint viene registrato con il prefisso '{url_prefix}'.
-#}
+"""
+
 from flask import render_template
 from utils.logger import ColoredLogger
 logger = ColoredLogger(__name__).get_logger()
@@ -211,13 +219,13 @@ def register_endpoint(parent_bp):
                 return
             target_dir = module_path / "api" / "endpoints"
             create_dir(target_dir)
-            # Usa un nuovo template per gli endpoint API
-            template = '''{#
+            template = '''
+"""
 Questo file definisce un endpoint API aggiuntivo per il modulo {module_name}.
 Scopo: Fornire funzionalità extra alle API del modulo.
 Esempio:
     Con il prefisso '{prefix}', l'endpoint sarà accessibile su /api/{module_name}/{prefix}.
-#}
+"""
 from flask import Blueprint, jsonify
 from utils.logger import ColoredLogger
 
@@ -235,9 +243,50 @@ def get_endpoint():
 '''
             filled = template.format(module_name=module_path.name, prefix=prefix)
             filename = target_dir / (class_name.lower() + "_endpoint.py")
+        elif type_ == "db":
+            target_dir = module_path / "db"
+            template = '''
+"""
+Questo file definisce una classe custom per il database del modulo {module_name}.
+Utilizzo:
+    - Estende la logica di base per operazioni specifiche sul database.
+            
+Assicurati che questa classe implementi l’interfaccia IDatabase per mantenere coerenza.
+"""
+
+from interfaces.db import IDatabase
+
+class {class_name}(IDatabase):
+    def __init__(self, db_url: str):
+        self.db_url = db_url
+        self.connection = None
+
+    def connect(self):
+        # Implementa la logica per connetterti al database
+        self.connection = f"Connected to {{self.db_url}}"
+        print(f"[DB] {{self.connection}}")
+
+    def disconnect(self):
+        # Implementa la logica per disconnetterti dal database
+        print("[DB] Disconnected")
+        self.connection = None
+
+    def execute(self, query: str, params: dict = None):
+        # Implementa l'esecuzione di una query
+        print(f"[DB] Executing query: {{query}} with params: {{params}}")
+        return []
+'''
+            filled = template.format(module_name=module_path.name, class_name=class_name)
+            filename = target_dir / (class_name.lower() + ".py")
         else:
             print(f"[ERROR] Tipo '{type_}' non supportato. Usa: controller, service, model, template, endpoint.")
             return
+
+        # Se tutte le variabili sono state definite, prosegui con la scrittura del file
+        if target_dir is None or filename is None or filled is None:
+            print("[ERROR] Impossibile generare il file per il tipo:", type_)
+            return
+
         create_dir(target_dir)
         write_file(filename, filled)
         print(f"[ADD] Classe/template '{class_name}' aggiunta in {target_dir}")

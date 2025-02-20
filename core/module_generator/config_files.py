@@ -46,7 +46,13 @@ def generate_manifest(base_path: Path, module_name: str, is_main: bool):
             "sockets": str((base_path / "sockets").resolve()),
             "controllers": str((base_path / "controllers").resolve()),
             "services": str((base_path / "services").resolve()),
-            "models": str((base_path / "models").resolve())
+            "models": str((base_path / "models").resolve()),
+            "db": str((base_path / "db").resolve()),
+            "utils": str((base_path / "utils").resolve()),
+            "docs": str((base_path / "docs").resolve()),
+            "config": str((base_path / "config").resolve()),
+            "tests": str((base_path / "tests").resolve()),
+            "interfaces": str((base_path / "interfaces").resolve())
         }
     }
     manifest_path = base_path / "module_manifest.json"

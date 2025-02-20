@@ -1,168 +1,172 @@
 # QuarGen CLI
 
-QuarGen è un tool da linea di comando sviluppato per il progetto QuarTrend.
-Il suo scopo è automatizzare la generazione della struttura di moduli (repository)
-per il progetto, creando un'architettura modulare standardizzata e facilmente integrabile in sistemi più grandi.
+QuarGen is a command-line tool developed for the QuarTrend project.
+Its purpose is to automate the generation of the module structure (repository)
+for the project, creating a standardized modular architecture that can be easily integrated into larger systems.
 
 ---
 
-## Funzionalità Principali
+## Main Features
 
-- **Generazione della Struttura Modulare Completa**
-  - **Directory e File di Base:**
-    - `config/`: contiene il file `default.py` con le configurazioni (es. porta API, tema UI, abilitazione sockets).
-    - `docs/`: include documentazione, con file `installation.md` e `usage.md`.
-    - `models/`: suddiviso in:
-      - `domain/`: per i modelli di business.
-      - `dto/`: per i Data Transfer Object.
-    - `controllers/`: suddivisi in:
-      - `rest/`: per i controller delle API REST.
-      - `web/`: per i controller web (se necessario).
-    - `services/`: divisi in:
-      - `business/`: per la logica di business.
-      - `data/`: per l’accesso ai dati.
-    - `utils/`: contiene utility come la classe `ColoredLogger` per il logging a colori.
-    - `tests/`: per test unitari e di integrazione.
-    - `api/`: implementa il modulo API con blueprint Flask.
-    - `ui/`: include:
-      - `templates/`: con la nuova struttura:
-        - `html_templates/`: contiene la cartella `base/` (con `ui_base_template.html`) e il file `ui_index_template.html`.
-      - `static/`: con sottocartelle `css/`, `js/`, `images/`.
-      - `endpoints/`: cartella separata (fuori da `templates/`) per endpoint extra della UI.
-    - `sockets/`: per la gestione delle connessioni socket.
-    - `interfaces/`: definisce le interfacce base (core, data, config, business) che devono essere implementate da tutti i componenti.
-    - `main.py`: punto di ingresso dell'applicazione che registra automaticamente API, UI, sockets e tutti i controller presenti.
-    - `webpack.config.js` e `package.json`: per la build della parte front-end tramite webpack.
-    - File aggiuntivi: `.env`, `README.md`, `requirements.txt`, e il file di manifest `module_manifest.json` che descrive il modulo.
+- **Complete Modular Structure Generation**
+  - **Base Directories and Files:**
+    - `config/`: contains the `default.py` file with configurations (e.g., API port, UI theme, socket enablement).
+    - `docs/`: includes documentation with files such as `installation.md` and `usage.md`.
+    - `models/`: divided into:
+      - `domain/`: for business models.
+      - `dto/`: for Data Transfer Objects.
+    - `controllers/`: divided into:
+      - `rest/`: for REST API controllers.
+      - `web/`: for web controllers (if needed).
+    - `services/`: divided into:
+      - `business/`: for business logic.
+      - `data/`: for data access.
+    - `utils/`: contains utilities such as the `ColoredLogger` class for colored logging.
+    - `tests/`: for unit and integration tests.
+    - `api/`: implements the API module using Flask blueprints. **The system recursively scans the `api/` folder to automatically register extra endpoints (including those in the `api/endpoints/` subfolder) while avoiding duplications.**
+    - `ui/`: includes:
+      - `templates/`: with the new structure:
+        - `html_templates/`: contains the `base/` folder (with `ui_base_template.html`) and the file `ui_index_template.html`.
+      - `static/`: with subfolders for `css/`, `js/`, and `images/`.
+      - `endpoints/`: a separate folder (outside of `templates/`) for extra UI endpoints.
+    - `sockets/`: for managing socket connections.
+    - `interfaces/`: defines the base interfaces (core, data, config, business) that must be implemented by all components.
+    - `main.py`: the application entry point that automatically registers API, UI, sockets, controllers, and extra endpoints.
+    - `webpack.config.js` and `package.json`: for building the front-end via webpack.
+    - Additional files: `.env`, `README.md`, `requirements.txt`, and the `module_manifest.json` file describing the module.
 
-- **Comandi CLI**
-  - **generate:** Genera l’intera struttura di un nuovo modulo.  
-    Aggiungendo il flag `--main` si indica che il modulo sarà quello principale (con endpoint `/`).
-  - **dev:** Avvia l’applicazione in modalità sviluppo eseguendo `main.py` come modulo (con import relativi corretti).
-  - **build:** Esegue la build per la produzione usando webpack, minimizzando i file JavaScript.
-  - **add:** Permette di aggiungere nuove classi o template.  
-    - Per i **controller**, è possibile specificare un sottotipo (`rest` o `web`).
-    - Per i **service**, il sottotipo può essere `business` o `data`.
-    - Per i **model**, il sottotipo può essere `domain` o `dto`.
-    - Per i **template**, se viene fornita l’opzione `--url_prefix`, viene generato anche un endpoint extra nella cartella `ui/endpoints`.
-    - È possibile anche aggiungere nuovi **endpoint API** tramite il flag `--prefix`.
+- **CLI Commands**
+  - **generate:** Generates the entire structure of a new module.  
+    By adding the `--main` flag, you indicate that the module will be the main one (with `/` endpoint).
+  - **dev:** Starts the application in development mode by running `main.py` as a module (with correct relative imports).
+  - **build:** Performs the production build using webpack to minimize JavaScript files.
+  - **add:** Allows you to add new classes or templates.  
+    - For **controllers**, you can specify a subtype (`rest` or `web`).
+    - For **services**, the subtype can be `business` or `data`.
+    - For **models**, the subtype can be `domain` or `dto`.
+    - For **templates**, if the `--url_prefix` option is provided, an extra endpoint is also generated in the `ui/endpoints` folder.
+    - You can also add new **extra API endpoints** using the `--prefix` flag.
 
-- **Logger a Colori**
-  - La classe `ColoredLogger` fornisce log colorati in base al livello (DEBUG, INFO, WARNING, ERROR, CRITICAL), facilitando il debugging.
+- **Colored Logger**
+  - The `ColoredLogger` class provides colored logs based on the level (DEBUG, INFO, WARNING, ERROR, CRITICAL), making debugging easier.
 
-- **Registrazione Automatica dei Componenti**
-  - Il file `main.py` generato:
-    - Importa e inizializza i moduli API, UI e Sockets.
-    - Registra automaticamente tutti i controller presenti nella cartella `controllers` (scansione ricorsiva), rendendo il modulo autonomo e facilmente integrabile.
+- **Automatic Component Registration**
+  - The generated `main.py`:
+    - Imports and initializes the API, UI, and Sockets modules.
+    - Automatically registers all controllers in the `controllers` folder (recursive scanning).
+    - **Now also automatically registers extra API endpoints present in the `api/` folder (including those in `api/endpoints/`), ensuring that each blueprint is registered only once.**
 
-- **Organizzazione dei Template**
-  - I template HTML per la UI sono ora gestiti nella cartella `templates/html_templates/`:
-    - `base/ui_base_template.html`: template base.
-    - `ui_index_template.html`: template per la pagina index.
-  - Il template Python per il main si trova in `templates/py_templates/main_template.py`.
+- **Template Organization**
+  - The HTML templates for the UI are now managed in the `templates/html_templates/` folder:
+    - `base/ui_base_template.html`: the base template.
+    - `ui_index_template.html`: the index page template.
+  - The Python template for the main entry point is located in `templates/py_templates/main_template.py`.
 
-- **Manifest del Modulo**
-  - Ogni modulo generato include un file `module_manifest.json` contenente le informazioni sul modulo,
-    utile per future operazioni di aggregazione tra repository.
+- **Module Manifest**
+  - Each generated module includes a `module_manifest.json` file containing information about the module,
+    which is useful for future aggregation operations between repositories.
 
 ---
 
-## Come Funziona QuarGen
+## How QuarGen Works
 
-1. **Generazione del Modulo**
-   - Esegui il comando:
+1. **Module Generation**
+   - Run the command:
      ```bash
-     python quargen.py generate --name MyApp --base <percorso>
+     python quargen.py generate --name MyApp --base <path>
      ```
-   - Verrà creata una struttura modulare completa con tutte le directory e i file necessari,
-     inclusi i file `__init__.py` per rendere ogni cartella un package Python e il file manifest.
+   - A complete modular structure is created with all necessary directories and files,
+     including `__init__.py` files to make each folder a Python package and the manifest file.
 
-2. **Avvio in Modalità Sviluppo**
-   - Avvia l’applicazione con:
+2. **Development Mode**
+   - Start the application with:
      ```bash
      python quargen.py dev --module MyApp
      ```
-   - Il DevServer cambia il working directory al livello superiore di `MyApp` e lancia l’app come modulo
-     (`python -m MyApp.main`), garantendo che gli import relativi siano risolti correttamente.
-   - Il file `main.py` registra automaticamente API, UI, Sockets e tutti i controller presenti.
+   - The DevServer changes the working directory to the parent level of `MyApp` and launches the app as a module
+     (`python -m MyApp.main`), ensuring that relative imports are correctly resolved.
+   - The `main.py` file automatically registers API, UI, Sockets, all controllers, and extra endpoints.
 
-3. **Build per la Produzione**
-   - Esegui il comando:
+3. **Production Build**
+   - Run the command:
      ```bash
      python quargen.py build --module MyApp
      ```
-   - Questo comando esegue `npm install` e `npx webpack` per creare la versione minimizzata dei file JS, pronta per la produzione.
+   - This command runs `npm install` and `npx webpack` to create a minimized version of the JS files, ready for production.
 
-4. **Aggiunta di Nuovi Componenti**
-   - Usa il comando `add` per aggiungere nuove classi o template. Ad esempio:
-     - **Template UI con Endpoint Extra:**
+4. **Adding New Components**
+   - Use the `add` command to add new classes or templates. For example:
+     - **UI Template with Extra Endpoint:**
        ```bash
-       python quargen.py add --type template --class_name CustomTemplate --module MyApp/ --url_prefix custom
+       python quargen.py add --type template --class_name CustomTemplate --module MyApp --url_prefix custom
        ```
-     - **Controller, Service e Model:** È possibile specificare il sottotipo (es. `rest`, `business`, `domain`, ecc.) per posizionarli nelle cartelle appropriate.
-     - **Endpoint API Extra:** Usa il flag `--prefix` per definire il prefisso dell’endpoint.
+     - **Extra API Endpoint:**
+       ```bash
+       python quargen.py add --type endpoint --class_name Extra_API --module MyApp --prefix extra
+       ```
+     - You can add controllers, services, and models by specifying the subtype (e.g., `rest`, `business`, `domain`, etc.).
 
-5. **Logger a Colori**
-   - Durante l’esecuzione, la classe `ColoredLogger` produce log colorati in console, facilitando il monitoraggio e il debug.
-
----
-
-## Cosa Fa il Software
-
-- **Automatizza la generazione della struttura modulare:**  
-  Permette di creare in modo standardizzato un modulo completo per QuarTrend,
-  includendo tutti i componenti necessari per API, UI, sockets e logica di business.
-
-- **Gestione semplificata dell’avvio e della build:**  
-  Fornisce comandi per avviare l’app in modalità sviluppo e per eseguire la build per la produzione tramite webpack.
-
-- **Estendibilità e aggregazione:**  
-  Tutti i componenti implementano interfacce standard, rendendo possibile l’aggregazione automatica della logica da moduli differenti in un progetto organico.
-
-- **Output di log a colori:**  
-  Grazie alla classe `ColoredLogger`, i log vengono visualizzati in modo chiaro e colorato, facilitando il debug.
-
-- **Gestione centralizzata dei template:**  
-  I template per la UI e il main sono gestiti in cartelle specifiche (html_templates e py_templates) per una manutenzione più semplice.
-
-- **Manifest del modulo:**  
-  Ogni modulo genera un file `module_manifest.json` con le informazioni sul modulo, utile per future operazioni di aggregazione.
+5. **Colored Logger**
+   - During execution, the `ColoredLogger` class produces colored logs in the console, making monitoring and debugging easier.
 
 ---
 
-## Prossimi Sviluppi
+## What the Software Does
 
-- **Testing e CI/CD:**
-  - Aggiungere ulteriori test unitari e di integrazione.
-  - Integrare un sistema di Continuous Integration per l’esecuzione automatica dei test.
+- **Automates the Generation of a Modular Structure:**  
+  It creates a complete module for QuarTrend in a standardized way,
+  including all necessary components for API, UI, sockets, and business logic.
 
-- **Documentazione e Miglioramenti Log:**
-  - Migliorare la documentazione interna ed esterna.
-  - Aggiornare i messaggi di log per rendere il debug ancora più intuitivo.
+- **Simplifies Startup and Build Management:**  
+  Provides commands to start the app in development mode and to build the module for production using webpack.
 
-- **Estendibilità:**
-  - Aggiungere nuovi tipi di componenti e opzioni di personalizzazione.
-  - Supportare altri linguaggi o framework nella generazione della struttura.
+- **Extensibility and Aggregation:**  
+  All components implement standard interfaces, allowing automatic aggregation of logic from different modules into a cohesive project.
 
-- **Ottimizzazione della Build e del Deploy:**
-  - Integrare strumenti aggiuntivi per la minificazione e il bundling.
-  - Automatizzare il deploy su ambienti di staging e produzione.
+- **Colored Log Output:**  
+  Thanks to the `ColoredLogger`, logs are displayed clearly and in color, aiding in debugging.
 
----
+- **Centralized Template Management:**  
+  UI and main templates are managed in specific folders (html_templates and py_templates) for easier maintenance.
 
-## Aggiornamenti
-
-Questo README viene aggiornato ad ogni modifica significativa del progetto.  
-*TODO: Mantieni questo file aggiornato con nuove funzionalità o modifiche.*
+- **Module Manifest:**  
+  Each module generates a `module_manifest.json` file with module information, useful for future aggregation operations.
 
 ---
 
-## Come Contribuire
+## Future Developments
 
-Se desideri contribuire a QuarGen, fai un fork del repository, apporta le modifiche e apri una pull request.
-Consulta il file `CONTRIBUTING.md` (se disponibile) per le linee guida sul contributo.
+- **Testing and CI/CD:**
+  - Add more unit and integration tests.
+  - Integrate a Continuous Integration system for automatic test execution.
+
+- **Documentation and Log Improvements:**
+  - Improve both internal and external documentation.
+  - Update log messages for even more intuitive debugging.
+
+- **Extensibility:**
+  - Add new component types and customization options.
+  - Support additional languages or frameworks in structure generation.
+
+- **Build and Deploy Optimization:**
+  - Integrate additional tools for minification and bundling.
+  - Automate deployment to staging and production environments.
 
 ---
 
-Con QuarGen potrai generare rapidamente una struttura modulare standardizzata e scalabile,
-facilitando lo sviluppo e l'integrazione di applicazioni per il progetto QuarTrend.
+## Updates
+
+This README is updated with every significant change to the project.  
+*TODO: Keep this file updated with new features or changes.*
+
+---
+
+## How to Contribute
+
+If you wish to contribute to QuarGen, fork the repository, make your changes, and open a pull request.
+See the `CONTRIBUTING.md` file (if available) for contribution guidelines.
+
+---
+
+With QuarGen, you can quickly generate a standardized and scalable modular structure,
+making development and integration of applications for the QuarTrend project much easier.

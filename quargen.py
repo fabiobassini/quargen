@@ -54,9 +54,9 @@ def main():
     build_parser.set_defaults(func=QuarTrendCLI.run_build)
 
     # Comando add: estendiamo le tipologie supportate includendo anche "endpoint"
-    add_parser = subparsers.add_parser("add", help="Aggiunge un nuovo componente (controller, service, model, template o endpoint)")
-    add_parser.add_argument("--type", type=str, choices=["controller", "service", "model", "template", "endpoint"], required=True,
-                            help="Tipo di componente da aggiungere. 'endpoint' permette di creare un nuovo endpoint API aggiuntivo.")
+    add_parser = subparsers.add_parser("add", help="Aggiunge un nuovo componente (controller, service, model, template, endpoint o db)")
+    add_parser.add_argument("--type", type=str, choices=["controller", "service", "model", "template", "endpoint", "db"], required=True,
+                            help="Tipo di componente da aggiungere. 'endpoint' permette di creare un nuovo endpoint API aggiuntivo. 'db' genera una classe custom per il database.")
     add_parser.add_argument("--class_name", type=str, required=True, help="Nome della classe/template da aggiungere")
     add_parser.add_argument("--module", type=str, required=True, help="Percorso della directory del modulo")
     add_parser.add_argument("--url_prefix", type=str, default=None,
@@ -67,6 +67,7 @@ def main():
     add_parser.add_argument("--prefix", type=str, default=None,
                             help="(Opzionale, per endpoint) Prefisso per l'endpoint API, ad esempio 'extra' per generare '/api/<modulo>/extra'")
     add_parser.set_defaults(func=QuarTrendCLI.add_class)
+
 
     args = parser.parse_args()
     args.func(args)

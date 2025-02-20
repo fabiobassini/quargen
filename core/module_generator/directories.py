@@ -19,7 +19,8 @@ def create_directories(base_path: Path):
         base_path / "api",
         base_path / "ui",
         base_path / "sockets",
-        base_path / "interfaces"
+        base_path / "interfaces",
+        base_path / "db"            # <-- Nuova cartella per il database
     ]
     for d in dirs:
         create_dir(d)

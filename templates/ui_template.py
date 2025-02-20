@@ -29,11 +29,13 @@ class UIModule(IUIComponent):
             return render_template('index/index.html', module="{module_name}")
 
     def register_extra_endpoints(self):
+        # Questo metodo verrà richiamato successivamente, quando l'app è già creata
         endpoints_dir = os.path.join(os.path.dirname(__file__), 'endpoints')
         if os.path.exists(endpoints_dir):
             for filename in os.listdir(endpoints_dir):
                 if filename.endswith('_endpoint.py'):
                     mod_name = filename[:-3]
+                    # Usa il nome corretto del package (sostituisci {module_name} con il nome effettivo se necessario)
                     mod = importlib.import_module('{module_name}.ui.endpoints.' + mod_name)
                     if hasattr(mod, 'register_endpoint'):
                         mod.register_endpoint(self.blueprint)

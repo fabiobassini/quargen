@@ -7,6 +7,9 @@ from .components import generate_components
 from .ui import generate_ui_templates
 from .static_assets import generate_static_assets
 from .main_files import generate_main_and_build_files
+from .db_assets import generate_db_assets
+from .generate_logger import generate_logger
+
 
 class ModuleGenerator:
     def __init__(self, module_name: str, base_path: str, is_main: bool = False, socket_enabled: bool = False):
@@ -42,4 +45,6 @@ class ModuleGenerator:
         generate_static_assets(self.base_path, self.module_name)
         generate_main_and_build_files(self.base_path, self.module_name)
         generate_manifest(self.base_path, self.module_name, self.is_main)
+        generate_db_assets(self.base_path, self.module_name)
+        generate_logger(self.base_path)
         print(f"\n[INFO] Modulo '{self.module_name}' generato correttamente in '{self.base_path.parent}'.")
