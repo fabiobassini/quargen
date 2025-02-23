@@ -9,8 +9,6 @@ from core.class_adder import ClassAdder
 class QuarTrendCLI:
     @staticmethod
     def generate_module(args):
-        # Per il comando generate usiamo sempre il nome e la base specificati
-        # Gli argomenti opzionali "main" e "socket" sono interpretati come flag posizionali.
         is_main = (len(args.optional) >= 1 and args.optional[0].lower() == "main")
         socket_enabled = (len(args.optional) >= 2 and args.optional[1].lower() == "socket")
         base = args.base if args.base else "."
@@ -19,7 +17,6 @@ class QuarTrendCLI:
 
     @staticmethod
     def run_dev(args):
-        # Se non viene specificato il percorso del modulo, usiamo la directory corrente
         module_path = args.module_path if args.module_path else os.getcwd()
         dev = DevServer(module_path)
         dev.start()
@@ -33,7 +30,6 @@ class QuarTrendCLI:
     @staticmethod
     def add_class(args):
         module_path = args.module_path if args.module_path else os.getcwd()
-        # Per il comando add, gli argomenti opzionali in ordine: url_prefix, subtype, prefix
         url_prefix = args.optional[0] if len(args.optional) >= 1 else None
         subtype = args.optional[1] if len(args.optional) >= 2 else None
         prefix = args.optional[2] if len(args.optional) >= 3 else None
@@ -47,30 +43,22 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # Comando generate:
-    # Sintassi: quargen generate <module_name> [base] [main] [socket]
     gen_parser = subparsers.add_parser("generate", help="Genera un nuovo modulo")
     gen_parser.add_argument("module_name", type=str, help="Nome del modulo da creare")
     gen_parser.add_argument("base", type=str, nargs="?", default=".", help="Directory base per il modulo (default: '.')")
     gen_parser.add_argument("optional", nargs="*", help="Opzionali: 'main' per modulo principale, 'socket' per abilitare socket")
     gen_parser.set_defaults(func=QuarTrendCLI.generate_module)
 
-    # Comando dev:
-    # Sintassi: quargen dev [module_path]
     dev_parser = subparsers.add_parser("dev", help="Avvia l'app in modalità sviluppo")
     dev_parser.add_argument("module_path", type=str, nargs="?", default=None,
                             help="Percorso del modulo (default: directory corrente se esiste 'main.py')")
     dev_parser.set_defaults(func=QuarTrendCLI.run_dev)
 
-    # Comando build:
-    # Sintassi: quargen build [module_path]
     build_parser = subparsers.add_parser("build", help="Esegue la build per la produzione")
     build_parser.add_argument("module_path", type=str, nargs="?", default=None,
                               help="Percorso del modulo da buildare (default: directory corrente)")
     build_parser.set_defaults(func=QuarTrendCLI.run_build)
 
-    # Comando add:
-    # Sintassi: quargen add <component_type> <class_name> [module_path] [optional...]
     add_parser = subparsers.add_parser("add", help="Aggiunge un nuovo componente (controller, service, model, template, endpoint o db)")
     add_parser.add_argument("component_type", type=str, choices=["controller", "service", "model", "template", "endpoint", "db"],
                             help="Tipo di componente da aggiungere.")

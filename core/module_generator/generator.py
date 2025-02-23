@@ -1,5 +1,6 @@
 from pathlib import Path
 from utils.file_utils import create_dir, write_file, create_init
+from utils.text_replace import replace_placeholder_in_files
 import shutil
 import json
 
@@ -39,13 +40,10 @@ class ModuleGenerator:
             print(f"[ERROR] Errore durante la copia dello skeleton: {e}")
             return
         
-        # Personalizza il file di configurazione sostituendo il placeholder {MODULE_NAME}
-        config_file = self.base_path / "config" / "default.py"
-        if config_file.exists():
-            content = config_file.read_text(encoding="utf-8")
-            content = content.replace("{MODULE_NAME}", self.module_name)
-            config_file.write_text(content, encoding="utf-8")
-        
+        # Sostituisci il placeholder {MODULE_NAME} in tutti i file generati
+        replace_placeholder_in_files(self.base_path, "{MODULE_NAME}", self.module_name)
+        print(f"[INFO] Placeholder '{{MODULE_NAME}}' sostituito con '{self.module_name}' in tutti i file.")
+
         # Aggiorna il manifest del modulo
         manifest_content = {
             "name": self.module_name,

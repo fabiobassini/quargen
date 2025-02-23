@@ -12,9 +12,13 @@ import os
 import importlib
 from pathlib import Path
 
+logger = ColoredLogger("Main").get_logger()
+
 def register_controllers(app):
     pkg = Path(__file__).parent.name  # Ad esempio, il nome del modulo
     controllers_dir = os.path.join(os.path.dirname(__file__), 'controllers')
+    logger.info(f"[MAIN], controllers_dir {controllers_dir}")
+    print(controllers_dir)
     with app.test_request_context():
         for root, dirs, files in os.walk(controllers_dir):
             for file in files:
@@ -26,8 +30,12 @@ def register_controllers(app):
                         mod = importlib.import_module(module_name)
                         if hasattr(mod, 'get_blueprint'):
                             bp = mod.get_blueprint()
+                            logger.info(f"[bp] {bp}")
+                            print(bp)
                             if bp:
                                 app.register_blueprint(bp)
+                                logger.info("registrato bp")
+                                
                         else:
                             for attr in dir(mod):
                                 obj = getattr(mod, attr)

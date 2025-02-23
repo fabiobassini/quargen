@@ -4,7 +4,6 @@ from utils.file_utils import create_dir, write_file
 class ClassAdder:
     def add(self, type_: str, class_name: str, module_dir: str, url_prefix: str = None, subtype: str = None, prefix: str = None):
         module_path = Path(module_dir)
-        # Inizializza le variabili in modo da poterle verificare dopo
         target_dir = None
         filename = None
         filled = None
@@ -14,40 +13,48 @@ class ClassAdder:
                 subtype = "rest"  # Default per controller
             if subtype == "rest":
                 target_dir = module_path / "controllers" / "rest"
+                custom_route = url_prefix if url_prefix is not None else "/"
                 template = '''"""
 Questo file definisce un controller REST per il modulo {module_name}.
-Scopo: Gestire richieste API specifiche e restituire risposte in formato JSON.
+Scopo: Gestire richieste API REST e restituire risposte in formato JSON.
 Esempio:
-    Una richiesta GET a /api/{module_name}/{route} attiverà il metodo sample.
+    Una richiesta GET a "{{{{CONFIG["controller_blueprint_prefix"]}}}}{custom_route}" attiverà il metodo custom_action.
 """
 
 from interfaces.business import IController
 from flask import Blueprint, request, jsonify
 from utils.logger import ColoredLogger
+from ...config.default import CONFIG
 
 logger = ColoredLogger(__name__).get_logger()
 
 class {class_name}(IController):
     def __init__(self):
-        # Il blueprint viene creato con un nome unico usando il nome della classe in minuscolo
-        self.blueprint = Blueprint('{module_name}_{class_name_lower}', __name__, url_prefix='/api/{module_name}')
+        # Il blueprint usa un nome univoco basato sul modulo e sul nome della classe
+        self.blueprint = Blueprint('{module_name}_{class_name_lower}_controller', __name__, url_prefix=CONFIG["controller_blueprint_prefix"])
         self.register_routes()
 
     def register_routes(self):
-        @self.blueprint.route('/{route}', methods=['GET'])
-        def sample():
-            logger.info("Richiesta sample da {class_name}")
+        @self.blueprint.route('{custom_route}', methods=['GET'])
+        def custom_action():
+            logger.info("Richiesta custom route da {class_name}")
             return jsonify({{"message": "Risposta da {class_name}"}})
-            
+    
     def get_blueprint(self):
         return self.blueprint
 
     def action(self):
         return "Azione eseguita da {class_name}"
 '''
-                route = class_name.lower()
-                filled = template.format(module_name=module_path.name, class_name=class_name, class_name_lower=class_name.lower(), route=route)
+                filled = template.format(module_name=module_path.name,
+                                        class_name=class_name,
+                                        class_name_lower=class_name.lower(),
+                                        custom_route=custom_route)
                 filename = target_dir / (class_name.lower() + ".py")
+
+
+
+
             elif subtype == "web":
                 target_dir = module_path / "controllers" / "web"
                 template = '''"""
@@ -69,6 +76,7 @@ class {class_name}(IController):
 '''
                 filled = template.format(module_name=module_path.name, class_name=class_name, template_file=class_name.lower()+".html")
                 filename = target_dir / (class_name.lower() + ".py")
+        # ... (gli altri tipi restano invariati)
         elif type_ == "service":
             if not subtype:
                 subtype = "business"
@@ -216,30 +224,39 @@ def register_endpoint(parent_bp):
                 return
             target_dir = module_path / "api" / "endpoints"
             create_dir(target_dir)
+            # La parte custom (in questo caso la route specifica) viene presa dal parametro prefix
+            custom_route = prefix
             template = '''
 """
 Questo file definisce un endpoint API aggiuntivo per il modulo {module_name}.
 Scopo: Fornire funzionalità extra alle API del modulo.
 Esempio:
-    Con il prefisso '{prefix}', l'endpoint sarà accessibile su /api/{module_name}/{prefix}.
+    L'endpoint sarà accessibile su "{{{{CONFIG["api_blueprint_prefix"]}}}}{custom_route}".
 """
 from flask import Blueprint, jsonify
 from utils.logger import ColoredLogger
+from ...config.default import CONFIG
 
 logger = ColoredLogger(__name__).get_logger()
 
-api_endpoint_bp = Blueprint('{module_name}_{prefix}_endpoint', __name__, url_prefix='/api/{module_name}/{prefix}')
+# Il blueprint usa un nome univoco basato sul modulo e sul nome della classe
+api_endpoint_bp = Blueprint('{module_name}_{class_name_lower}_endpoint', __name__, url_prefix=CONFIG["api_blueprint_prefix"])
 
-@api_endpoint_bp.route('/', methods=['GET'])
+@api_endpoint_bp.route('{custom_route}', methods=['GET'])
 def endpoint_home():
-    logger.info("Richiesta per l'endpoint {prefix}")
-    return jsonify({{"message": "Risposta dall'endpoint {prefix}"}})
+    logger.info("Richiesta per l'endpoint {custom_route}")
+    return jsonify({{"message": "Risposta dall'endpoint {custom_route}"}})
 
 def get_endpoint():
     return api_endpoint_bp
 '''
-            filled = template.format(module_name=module_path.name, prefix=prefix)
+            filled = template.format(module_name=module_path.name,
+                                    class_name_lower=class_name.lower(),
+                                    custom_route=custom_route)
             filename = target_dir / (class_name.lower() + "_endpoint.py")
+
+
+
         elif type_ == "db":
             target_dir = module_path / "db"
             template = '''
