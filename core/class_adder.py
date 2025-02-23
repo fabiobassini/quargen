@@ -176,12 +176,10 @@ Esempio:
 '''
             filled = template.format(class_name=class_name)
             filename = target_dir / (class_name.lower() + ".html")
-            # Genera anche file statici per questo template
             static_css = module_path / "ui" / "static" / "css" / (class_name.lower() + ".css")
             static_js = module_path / "ui" / "static" / "js" / (class_name.lower() + ".js")
             write_file(static_css, f"/* Stili per {class_name} */\n")
             write_file(static_js, f"// Script per {class_name}\n")
-            # Se è stato passato url_prefix, genera anche l'endpoint extra per il template
             if url_prefix:
                 endpoints_dir = module_path / "ui" / "endpoints"
                 create_dir(endpoints_dir)
@@ -213,7 +211,6 @@ def register_endpoint(parent_bp):
                 )
                 write_file(endpoint_filename, endpoint_content)
         elif type_ == "endpoint":
-            # Nuovo tipo: endpoint API extra
             if not prefix:
                 print("[ERROR] Per il tipo 'endpoint' è necessario specificare --prefix.")
                 return
@@ -262,17 +259,14 @@ class {class_name}(IDatabase):
         self.connection = None
 
     def connect(self):
-        # Implementa la logica per connetterti al database
         self.connection = f"Connected to {{self.db_url}}"
         print(f"[DB] {{self.connection}}")
 
     def disconnect(self):
-        # Implementa la logica per disconnetterti dal database
         print("[DB] Disconnected")
         self.connection = None
 
     def execute(self, query: str, params: dict = None):
-        # Implementa l'esecuzione di una query
         print(f"[DB] Executing query: {{query}} with params: {{params}}")
         return []
 '''
@@ -282,7 +276,6 @@ class {class_name}(IDatabase):
             print(f"[ERROR] Tipo '{type_}' non supportato. Usa: controller, service, model, template, endpoint.")
             return
 
-        # Se tutte le variabili sono state definite, prosegui con la scrittura del file
         if target_dir is None or filename is None or filled is None:
             print("[ERROR] Impossibile generare il file per il tipo:", type_)
             return

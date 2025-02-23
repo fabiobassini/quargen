@@ -1,0 +1,21 @@
+{
+    "name": "{MODULE_NAME}",
+    "is_main": false,
+    "components": {
+        "api": "api/",
+        "ui": "ui/",
+        "sockets": "sockets/",
+        "controllers": "controllers/",
+        "services": "services/",
+        "models": "models/",
+        "db": "db/",
+        "utils": "utils/",
+        "docs": "docs/",
+        "config": "config/",
+        "tests": "tests/",
+        "interfaces": "interfaces/",
+        "async": "async/",
+        "auth": "auth/",
+        "realtime": "realtime/"
+    }
+}

@@ -11,7 +11,6 @@ def write_file(path: Path, content: str):
     print(f"[INFO] Creato file: {path}")
 
 def create_init(directory: Path):
-    """Crea un file __init__.py vuoto per rendere la directory un package Python."""
     init_file = directory / '__init__.py'
     if not init_file.exists():
         write_file(init_file, "")
