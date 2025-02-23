@@ -1,4 +1,3 @@
-# core/dev_server.py
 import subprocess
 import webbrowser
 from pathlib import Path
