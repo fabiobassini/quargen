@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Modulo{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('{MODULE_NAME}_ui.static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>{% block header %}Benvenuto nel Modulo{% endblock %}</h1>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Modulo. Tutti i diritti riservati.</p>
+    </footer>
+</body>
+
+</html>

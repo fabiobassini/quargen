@@ -1,4 +1,3 @@
-# core/build_tool.py
 import subprocess
 from pathlib import Path
 
